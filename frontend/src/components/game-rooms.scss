@@ -1,0 +1,10 @@
+.game-room {
+    display: flex;
+    border: 1px black solid;
+    // justify-content: center;
+
+    .game-room-data {
+        margin: 10px;
+        width: 200px;
+    }
+}

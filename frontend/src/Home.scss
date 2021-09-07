@@ -1,0 +1,22 @@
+// html, body {
+//     margin: 0px;
+//     padding: 0px;
+//     height: 100%;
+// }
+// #root {
+//     margin-top: 0;
+//     background-color: #5CDB95;
+//     width: 100%;
+//     height: 100%;
+// }
+
+.home {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    .title {
+        text-align: center;
+        margin-top: 0px;
+        color: #05386b;
+    }
+}
