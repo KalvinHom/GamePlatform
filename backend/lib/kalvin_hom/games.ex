@@ -8,7 +8,7 @@ defmodule KalvinHom.Games do
         game = %Game{
             host: user,
             code: code,
-            players: []
+            players: [user]
         }
         {:ok, _pid} = GameSupervisor.create_game(game) 
         game
@@ -20,12 +20,24 @@ defmodule KalvinHom.Games do
         |> Enum.map(&Game.get_by_pid(elem(&1, 1)))
         |> IO.inspect()
     end
-
-    def join(code, user) do
-        {:reply, :player_added, game} = Game.add_player(code, user)
-        game
+    
+    def get(code) do
+        Game.get(code)
     end
 
+
+    def join(code, user) do
+        Game.add_player(code, user)
+    end
+
+    def leave(code, user) do
+        Game.remove_player(code, user)
+    end
+
+    def start(code) do
+        Game.start(code)
+    end
+    
     def delete() do
     end
 

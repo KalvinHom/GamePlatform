@@ -2,15 +2,15 @@ import React, { useRef, useEffect, useContext } from "react";
 import { Socket } from "phoenix";
 import UserContext from "../contexts/UserContext"
 import "./whiteboard.scss";
+import socket from "../socket";
 
-const Board = () => {
+const Board = ({game: game, channel: channel}) => {
     const canvasRef = useRef(null);
     const colorsRef = useRef(null);
-    const socketRef = useRef(null);
-    const channelRef = useRef(null);
     const testRef = useRef(null);
     const { user } = useContext(UserContext)
     useEffect(() => {
+        
         const canvas = canvasRef.current;
         const context = canvas.getContext("2d");
 
@@ -53,8 +53,8 @@ const Board = () => {
             console.log("drawing")
             console.log(w);
             console.log(h);
-            console.log(channelRef.current);
-            channelRef.current.push('drawing', {
+            console.log(channel);
+            channel.push('update_game_state', {
                 x0: x0 / w,
                 y0: y0 / h,
                 x1: x1 / w,
@@ -135,20 +135,14 @@ const Board = () => {
             const h = canvas.height;
             drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color);
         }
-
-        socketRef.current = new Socket("ws://localhost:4000/socket");
-        socketRef.current.connect();
-        channelRef.current = socketRef.current.channel("chat_room:lobby");
-        channelRef.current.join();
-        channelRef.current.on('drawing', onDrawingEvent);
+        channel.on('update_game_state', onDrawingEvent);
     }, []);
 
     // ------------- The Canvas and color elements --------------------------
     console.log(user);
     return (
         <div>
-            <div className="container">
-                Hello {user}
+            <div className="container">               
              <canvas ref={canvasRef} className="whiteboard" />
             </div>
 

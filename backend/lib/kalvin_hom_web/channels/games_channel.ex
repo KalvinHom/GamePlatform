@@ -17,6 +17,8 @@ defmodule KalvinHomWeb.GamesChannel do
     def broadcast_new_game(game) do
       KalvinHomWeb.Endpoint.broadcast! "games:lobby", "new_game", game
     end
+
+
     # Channels can be used in a request/response fashion
     # by sending replies to requests from the client
     @impl true

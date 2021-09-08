@@ -4,6 +4,9 @@ defmodule KalvinHomWeb.UserSocket do
   Channels
   channel "chat_room:*", KalvinHomWeb.ChatRoomChannel
   channel "games:lobby", KalvinHomWeb.GamesChannel
+  channel "game:*", KalvinHomWeb.GameChannel
+  channel "game_summary:*", KalvinHomWeb.GameChannel
+
 
   # channel "room:*", KalvinHomWeb.RoomChannel
 

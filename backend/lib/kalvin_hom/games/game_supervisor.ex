@@ -13,7 +13,6 @@ defmodule KalvinHom.Games.GameSupervisor do
   end
 
   def create_game(game) do
-    IO.inspect(game)
     child_specification = {Game, game}
     DynamicSupervisor.start_child(__MODULE__, child_specification)
   end

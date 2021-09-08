@@ -36,7 +36,7 @@ defmodule KalvinHom.Games.Game do
     GenServer.call(via_tuple(room), {:remove_player, player})
   end
 
-  def start_game(room) do
+  def start(room) do
     room
     |> via_tuple()
     |> GenServer.call({:start_game, {}})
@@ -51,7 +51,8 @@ defmodule KalvinHom.Games.Game do
   end
 
   def handle_call({:start_game, _}, _from, state) do
-    {:reply, :started_game, Map.put(state, :game_state, @in_progress)}
+    game =  Map.put(state, :game_state, @in_progress)
+    {:reply, game, game}
   end
 
   def handle_call(:game, _from, game) do
@@ -60,13 +61,18 @@ defmodule KalvinHom.Games.Game do
 
   def handle_call({:add_player, player}, _from, state) do
     state = Map.update!(state, :players, &[player | &1])
-    {:reply, :player_added, state}
+    {:reply, state, state}
+  end
+
+  def handle_call({:remove_player, player}, _from, state) do
+    state = Map.update!(state, :players, &Enum.reject(&1, fn p -> p.username == player.username end))
+    {:reply, state, state}
   end
 
   # GenServer required functions
   @impl true
   def start_link(name) do
-    GenServer.start_link(__MODULE__, name, name: via_tuple(name))
+    GenServer.start_link(__MODULE__, name, name: via_tuple(name.code))
   end
 
   @impl true

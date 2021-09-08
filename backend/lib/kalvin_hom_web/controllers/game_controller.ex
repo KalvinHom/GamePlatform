@@ -1,6 +1,6 @@
 defmodule KalvinHomWeb.GameController do
     use KalvinHomWeb, :controller
-    alias KalvinHomWeb.GamesChannel
+    alias KalvinHomWeb.{GamesChannel, GameChannel}
     alias KalvinHom.Games
     @code_length 6
     def create(conn, %{"user" => user}) do
@@ -16,7 +16,15 @@ defmodule KalvinHomWeb.GameController do
     end
 
     def join(conn, %{"user" => user, "code" => code}) do
-        Games.join(code, user)
+        game = Games.join(code, user)
+        GameChannel.broadcast_new_player(game)
+        json(conn, game)
+    end
+
+    def start(conn, %{"code" => code}) do
+        game = Games.start(code)
+        GameChannel.broadcast_start_game(game)
+        json(conn, game)
     end
         
 

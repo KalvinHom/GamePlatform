@@ -8,6 +8,8 @@ defmodule KalvinHomWeb.Router do
   scope "/api", KalvinHomWeb do
     pipe_through :api
     post "/game", GameController, :create
+    post "/game/join", GameController, :join
+    post "/game/start", GameController, :start
   end
 
   # Enables LiveDashboard only for development

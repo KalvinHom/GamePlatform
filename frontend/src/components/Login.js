@@ -4,6 +4,11 @@ import { create } from "../api/game";
 import "./login.scss"
 const Login = () => {
     const { user, updateUser } = useContext(UserContext)
+    const value = useContext(UserContext);
+    console.log(value);
+    console.log(value.user);
+
+    console.log(updateUser);
     const userRef = useRef(null);
 
     const submitUser = () => {
