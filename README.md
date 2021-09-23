@@ -1,1 +1,1 @@
-Kalvin Hom's elixir backend
+Phoenix & React
