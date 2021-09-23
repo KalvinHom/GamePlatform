@@ -15,12 +15,6 @@ defmodule KalvinHomWeb.GameController do
         json(conn, games)
     end
 
-    def join(conn, %{"user" => user, "code" => code}) do
-        game = Games.join(code, user)
-        GameChannel.broadcast_new_player(game)
-        json(conn, game)
-    end
-
     def start(conn, %{"code" => code}) do
         game = Games.start(code)
         GameChannel.broadcast_start_game(game)

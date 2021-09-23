@@ -9,26 +9,39 @@
     "@babel/core": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-react": "^7.14.5",
+    "@chakra-ui/react": "^1.6.8",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
+    "@snek-at/storybook-addon-chakra-ui": "^1.0.0-beta.1",
     "axios": "^0.21.1",
     "babel-loader": "^8.2.2",
     "css-loader": "^6.2.0",
+    "framer-motion": "^4",
     "html-webpack-plugin": "^5.3.2",
     "phoenix": "^1.6.0-rc.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-router": "^5.2.1",
     "react-router-dom": "^5.3.0",
+    "react-stopwatch-timer": "^1.0.0",
     "socket.io-client": "^4.2.0",
     "style-loader": "^3.2.1",
+    "uuid": "^8.3.2",
     "webpack": "^5.51.1",
     "webpack-cli": "^4.8.0",
     "webpack-dev-server": "^4.1.0"
   },
   "scripts": {
     "start": "webpack-dev-server --mode=development --open --hot",
-    "build": "webpack --mode=production"
+    "build": "webpack --mode=production",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "devDependencies": {
+    "@storybook/addon-actions": "^6.3.8",
+    "@storybook/addon-essentials": "^6.3.8",
+    "@storybook/addon-links": "^6.3.8",
+    "@storybook/react": "^6.3.8",
     "node-sass": "^6.0.1",
     "sass-loader": "^12.1.0"
   }

@@ -18,6 +18,11 @@ defmodule KalvinHomWeb.GamesChannel do
       KalvinHomWeb.Endpoint.broadcast! "games:lobby", "new_game", game
     end
 
+    def broadcast_refresh() do
+      IO.inspect("REFRESHING GAMES")
+      KalvinHomWeb.Endpoint.broadcast! "games:lobby", "refresh_games", "test"
+    end
+
 
     # Channels can be used in a request/response fashion
     # by sending replies to requests from the client

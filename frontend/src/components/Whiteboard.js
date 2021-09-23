@@ -1,5 +1,6 @@
-import React, { useRef, useEffect, useContext } from "react";
+import React, { useRef, useEffect, useContext, useState, useCallback } from "react";
 import { Socket } from "phoenix";
+import { Box } from "@chakra-ui/react";
 import UserContext from "../contexts/UserContext"
 import "./whiteboard.scss";
 import socket from "../socket";
@@ -7,10 +8,38 @@ import socket from "../socket";
 const Board = ({game: game, channel: channel}) => {
     const canvasRef = useRef(null);
     const colorsRef = useRef(null);
-    const testRef = useRef(null);
+
+
     const { user } = useContext(UserContext)
+
+    const drawLine = useCallback((x0, y0, x1, y1, color, emit) => {
+        const canvas = canvasRef.current;
+        const context = canvas.getContext("2d");
+        context.beginPath();
+        context.moveTo(x0, y0);
+        context.lineTo(x1, y1);
+        context.strokeStyle = color;
+        context.lineWidth = 4;
+        context.stroke();
+        context.closePath();
+
+        if (!emit) { return; }
+        const w = canvas.width;
+        const h = canvas.height;
+        console.log("drawing")
+        console.log(w);
+        console.log(h);
+        console.log(channel);
+        channel.push('update_game_state', {
+            x0: x0 / w,
+            y0: y0 / h,
+            x1: x1 / w,
+            y1: y1 / h,
+            color,
+        });
+    }, []);
+
     useEffect(() => {
-        
         const canvas = canvasRef.current;
         const context = canvas.getContext("2d");
 
@@ -34,59 +63,90 @@ const Board = ({game: game, channel: channel}) => {
         for (let i = 0; i < colors.length; i++) {
             colors[i].addEventListener('click', onColorUpdate, false);
         }
-        let drawing = false;
+     
 
         // ------------------------------- create the drawing ----------------------------
 
-        const drawLine = (x0, y0, x1, y1, color, emit) => {
-            context.beginPath();
-            context.moveTo(x0, y0);
-            context.lineTo(x1, y1);
-            context.strokeStyle = color;
-            context.lineWidth = 4;
-            context.stroke();
-            context.closePath();
+       
 
-            if (!emit) { return; }
+        const onResize = () => {
+            console.log("resizing");
+            canvas.width = window.innerWidth*.7;
+            canvas.height = canvas.width * .6;
+         
+        };
+
+        // window.addEventListener('resize', onResize, false);
+        onResize();
+
+        // ----------------------- socket.io connection ----------------------------
+        const onDrawingEvent = (data) => {
+            console.log("got drawing event")
             const w = canvas.width;
             const h = canvas.height;
-            console.log("drawing")
-            console.log(w);
-            console.log(h);
-            console.log(channel);
-            channel.push('update_game_state', {
-                x0: x0 / w,
-                y0: y0 / h,
-                x1: x1 / w,
-                y1: y1 / h,
-                color,
-            });
+            drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color);
+        }
+        channel.on('update_game_state', onDrawingEvent);
+    }, [])
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        const context = canvas.getContext("2d");
+
+        const current = {
+            color: 'black',
         };
+
+        let drawing = false;
+        let drawn = false;
 
         // ---------------- mouse movement --------------------------------------
 
         const onMouseDown = (e) => {
-            const rect = canvas.getBoundingClientRect();
-            drawing = true;
-            current.x = (e.clientX || e.touches[0].clientX) - rect.left;
-            current.y = (e.clientY || e.touches[0].clientY) - rect.top;
+            console.log(game)
+            if (!drawn && game.round < 3 && !!game.current_player && game.current_player.uuid == user.uuid) {
+                const rect = canvas.getBoundingClientRect();
+                drawing = true;
+
+                
+                const mouseX = (e.pageX || e.touches[0].pageX) - rect.left;
+                const mouseY = (e.pageY || e.touches[0].pageY) - rect.top;
+
+                current.x = mouseX * canvas.width / canvas.clientWidth;
+                current.y = mouseY * canvas.height / canvas.clientHeight;
+
+            }
         };
 
         const onMouseMove = (e) => {
             if (!drawing) { return; }
             const rect = canvas.getBoundingClientRect();
 
-            drawLine(current.x, current.y, (e.clientX || e.touches[0].clientX) - rect.left, (e.clientY || e.touches[0].clientY) - rect.top, current.color, true);
-            current.x = (e.clientX || e.touches[0].clientX) - rect.left;
-            current.y = (e.clientY || e.touches[0].clientY) - rect.top;
-        };
+            const mouseX = (e.pageX || e.touches[0].pageX) - rect.left;
+            const mouseY = (e.pageY || e.touches[0].pageY) - rect.top;
+
+            const canvasX = mouseX * canvas.width / canvas.clientWidth;
+            const canvasY = mouseY * canvas.height / canvas.clientHeight;
+            drawLine(current.x, current.y, canvasX, canvasY, current.color, true);
+            current.x = canvasX;
+            current.y = canvasY;
+        };  
 
         const onMouseUp = (e) => {
             if (!drawing) { return; }
             drawing = false;
+            drawn = true;
             const rect = canvas.getBoundingClientRect();
 
-            drawLine(current.x, current.y, (e.clientX || e.touches[0].clientX) - rect.left, (e.clientY || e.touches[0].clientY) - rect.top, current.color, true);
+            const mouseX = (e.pageX || e.touches[0].pageX) - rect.left;
+            const mouseY = (e.pageY || e.touches[0].pageY) - rect.top;
+
+            const canvasX = mouseX * canvas.width / canvas.clientWidth;
+            const canvasY = mouseY * canvas.height / canvas.clientHeight;
+            drawLine(current.x, current.y, canvasX, canvasY, current.color, true);
+            current.x = canvasX;
+            current.y = canvasY;
+            channel.push('complete_turn', {})
         };
 
         // ----------- limit the number of events per second -----------------------
@@ -118,42 +178,14 @@ const Board = ({game: game, channel: channel}) => {
 
         // -------------- make the canvas fill its parent component -----------------
 
-        const onResize = () => {
-            console.log("resizing");
-            canvas.width = window.innerWidth*.7;
-            canvas.height = canvas.width * .6;
-         
-        };
-
-        // window.addEventListener('resize', onResize, false);
-        onResize();
-
-        // ----------------------- socket.io connection ----------------------------
-        const onDrawingEvent = (data) => {
-            console.log("got drawing event")
-            const w = canvas.width;
-            const h = canvas.height;
-            drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color);
-        }
-        channel.on('update_game_state', onDrawingEvent);
-    }, []);
+     
+    }, [game]);
 
     // ------------- The Canvas and color elements --------------------------
-    console.log(user);
     return (
-        <div>
-            <div className="container">               
-             <canvas ref={canvasRef} className="whiteboard" />
-            </div>
-
-            <div ref={colorsRef} className="colors">
-                <div className="color black" />
-                <div className="color red" />
-                <div className="color green" />
-                <div className="color blue" />
-                <div className="color yellow" />
-            </div>
-        </div>
+        <Box maxHeight="50vh">
+            <canvas style={{maxHeight: "60vh"}} ref={canvasRef} className="whiteboard" />
+        </Box>
     );
 };
 

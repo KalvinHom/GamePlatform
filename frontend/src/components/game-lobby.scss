@@ -1,0 +1,8 @@
+.game-lobby {
+    display: flex;
+    justify-content: center;
+    .details {
+        display: flex;
+        flex-direction: column;
+    }
+}

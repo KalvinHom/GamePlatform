@@ -1,31 +1,43 @@
-import React, { useState, useContext } from 'react';
-import GameRooms from "./components/GameRooms";
-import Login from "./components/Login";
-import UserContext from "./contexts/UserContext"
-import "./Home.scss"
-import socket from "./socket";
-const Home = () => {
-    // const { artist, setArtist } = useState(null);
-    const { user: user, updateUser: updateUser } = useContext(UserContext);
-    // socket.connect();
+import React, { useState, useContext, useEffect } from 'react';
+import { useHistory } from "react-router-dom";
 
+import { Box, Container, Center, Heading, Button, Stack, VStack, Flex} from "@chakra-ui/react"
+import "./Home.scss"
+
+const Home = () => {
+   let history = useHistory();
+  
     return (
-        // <UserContext.Provider value={{ user, updateUser }}>
-            <div className="home">
-                <h3 className="title">Imposter Artist</h3>
-                {renderComponent(user)}
-            </div>
-        // </UserContext.Provider>
+        <Box
+            width="100vw"
+            height="100vh"
+            backgroundImage="url('/images/background.png')"
+            backgroundPosition="right top"
+            backgroundRepeat="no-repeat">
+           <Center width="60vw" height="70vh">
+               <VStack>
+                   <Heading as="h1" size="2xl">Hello, I am Kalvin</Heading>
+                   <Heading as="h3" size="md">Software Enginner, Photographer, Rockclimber, Corgi Owner</Heading>
+                   
+                   
+                   <Stack direction="row" spacing={4} pt="40px">
+                    <Button pr="10px">
+                        Photography
+                    </Button>
+                    <Button onClick={() => history.push("/login")}>
+                        Games
+                    </Button>
+                    <Button p="10px">
+                        About
+                    </Button>
+                </Stack>
+                </VStack>
+                
+            </Center>
+        </Box>
     );
 };
 
-const renderComponent = (user) => {
-    console.log(user)
-    return (
-        <div>
-            {!!user ? <GameRooms /> : <Login />}
-        </div>
-    );
-}
+
 
 export default Home;

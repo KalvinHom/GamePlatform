@@ -1,5 +1,6 @@
 defmodule KalvinHom.Games do
     alias KalvinHom.Games.{GameSupervisor, Game}
+
     @code_length 6
 
     # Generate a new game and notify socket
@@ -8,7 +9,7 @@ defmodule KalvinHom.Games do
         game = %Game{
             host: user,
             code: code,
-            players: [user]
+            players: []
         }
         {:ok, _pid} = GameSupervisor.create_game(game) 
         game
@@ -25,19 +26,33 @@ defmodule KalvinHom.Games do
         Game.get(code)
     end
 
+    def next_turn(code) do
+        Game.next_turn(code)
+    end
+
 
     def join(code, user) do
         Game.add_player(code, user)
     end
 
     def leave(code, user) do
-        Game.remove_player(code, user)
+        game = Game.remove_player(code, user)
+        case Enum.count(game.players) do
+            0 -> Game.stop(code, :normal)
+                 nil
+            _ -> game
+        end
+    end
+
+    def end_game(code) do
+        Game.stop(code, :normal)
+        nil
     end
 
     def start(code) do
         Game.start(code)
     end
-    
+
     def delete() do
     end
 
